@@ -1,0 +1,23 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  symbol: MyString
+  name: MyString
+  exchange: MyString
+  industry: MyString
+  website: MyString
+  description: MyString
+  ceo: MyString
+  issue_type: MyString
+  sector: MyString
+
+two:
+  symbol: MyString
+  name: MyString
+  exchange: MyString
+  industry: MyString
+  website: MyString
+  description: MyString
+  ceo: MyString
+  issue_type: MyString
+  sector: MyString
