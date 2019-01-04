@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_04_021323) do
+ActiveRecord::Schema.define(version: 2019_01_04_021836) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -35,6 +35,17 @@ ActiveRecord::Schema.define(version: 2019_01_04_021323) do
     t.bigint "tag_id", null: false
   end
 
+  create_table "sector_performances", force: :cascade do |t|
+    t.bigint "sector_id", null: false
+    t.decimal "performance", null: false
+    t.date "period", null: false
+    t.date "last_updated", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["sector_id", "last_updated"], name: "index_sector_performances_on_sector_id_and_last_updated", unique: true
+    t.index ["sector_id"], name: "index_sector_performances_on_sector_id"
+  end
+
   create_table "sectors", force: :cascade do |t|
     t.string "name", null: false
     t.datetime "created_at", null: false
@@ -52,4 +63,5 @@ ActiveRecord::Schema.define(version: 2019_01_04_021323) do
   add_foreign_key "companies", "sectors"
   add_foreign_key "companies_tags", "companies"
   add_foreign_key "companies_tags", "tags"
+  add_foreign_key "sector_performances", "sectors"
 end

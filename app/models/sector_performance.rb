@@ -1,0 +1,2 @@
+class SectorPerformance < ApplicationRecord
+end
