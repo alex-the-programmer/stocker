@@ -4,9 +4,7 @@ module CompanyLoader
 
     def perform(stock_symbol)
       response = Faraday.get "https://api.iextrading.com/1.0/stock/#{stock_symbol}/company"
-      if response.status != 404
-        return unless response.success?
-
+      if response.status != 404 && response.body != "Forbidden"
         data = JSON.parse(response.body).with_indifferent_access
 
         return unless data[:companyName]
