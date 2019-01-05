@@ -65,5 +65,7 @@ module StatsLoader
     def replace_zero_with_null(value)
       value == "0" || value == 0 ? nil : value
     end
+
+    #todo clenup NaN values from revenue per emploee
   end
 end
