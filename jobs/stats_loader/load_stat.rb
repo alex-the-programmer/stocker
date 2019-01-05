@@ -16,12 +16,12 @@ module StatsLoader
           week_52_low: data[:week52low],
           week_52_change: data[:week52change],
           short_interest: data[:shortInterest],
-          short_date: data[:shortDate],
+          short_date: replace_zero_with_null(data[:shortDate]),
           dividend_rate: data[:dividendRate],
           dividend_yield: data[:dividendYield],
-          ex_dividend_date: data[:exDividendDate],
+          ex_dividend_date: replace_zero_with_null(data[:exDividendDate]),
           latest_eps: data[:latestEPS],
-          latest_eps_date: data[:latestEPSDate],
+          latest_eps_date: replace_zero_with_null(data[:latestEPSDate]),
           shares_outstanding: data[:sharesOutstanding],
           float: data[:float],
           return_on_equity: data[:returnOnEquity],
@@ -59,6 +59,11 @@ module StatsLoader
           day_5_change_percent: data[:day5ChangePercent],
           day_30_change_percent: data[:day30ChangePercent],
       )
+    end
+
+    private
+    def replace_zero_with_null(value)
+      value == "0" || value == 0 ? nil : value
     end
   end
 end

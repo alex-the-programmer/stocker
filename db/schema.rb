@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_04_072427) do
+ActiveRecord::Schema.define(version: 2019_01_05_033056) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -67,7 +67,7 @@ ActiveRecord::Schema.define(version: 2019_01_04_072427) do
     t.date "ex_dividend_date"
     t.float "latest_eps"
     t.date "latest_eps_date"
-    t.integer "shares_outstanding"
+    t.bigint "shares_outstanding"
     t.float "float"
     t.float "return_on_equity"
     t.float "consensus_eps"
