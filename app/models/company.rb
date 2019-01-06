@@ -6,4 +6,6 @@ class Company < ApplicationRecord
     has_many :tags, through: :companies_tags
     has_many :stats
     has_many :charts
+
+    scope :cheap, -> {where(cheap: true)}
 end
