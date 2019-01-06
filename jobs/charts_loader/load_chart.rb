@@ -7,7 +7,8 @@ module ChartsLoader
       response = Faraday.get "https://api.iextrading.com/1.0/stock/#{company.symbol}/chart/5y"
       data = JSON.parse(response.body)
 
-      charts = data.with_indifferent_access.map do |chart|
+      charts = data.map do |chart|
+        chart = chart.with_indifferent_access
         {
             company_id: company_id,
             date: chart[:date],
@@ -21,7 +22,7 @@ module ChartsLoader
       end
 
       status = Chart.import charts
-      raise "#{status.failed_instances.count} charts failed to insert" if charts.failed_instances.any?
+      raise "#{status[:failed_instances].count} charts failed to insert" if status[:failed_instances].any?
     end
   end
 end
