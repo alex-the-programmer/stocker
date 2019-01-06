@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_05_232243) do
+ActiveRecord::Schema.define(version: 2019_01_06_044014) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -40,6 +40,7 @@ ActiveRecord::Schema.define(version: 2019_01_05_232243) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "sector_id"
+    t.boolean "cheap", default: false, null: false
     t.index ["symbol"], name: "index_companies_on_symbol", unique: true
   end
 
