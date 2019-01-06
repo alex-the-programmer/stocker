@@ -10,10 +10,36 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_05_033056) do
+ActiveRecord::Schema.define(version: 2019_01_05_232243) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "charts", force: :cascade do |t|
+    t.bigint "company_id", null: false
+    t.date "date"
+    t.time "minute"
+    t.float "high"
+    t.float "low"
+    t.float "average"
+    t.bigint "volume"
+    t.float "notional"
+    t.integer "number_of_trades"
+    t.float "market_high"
+    t.float "market_low"
+    t.float "market_average"
+    t.bigint "market_volume"
+    t.float "market_notional"
+    t.integer "market_number_of_trades"
+    t.float "open"
+    t.float "close"
+    t.float "market_open"
+    t.float "market_Close"
+    t.float "change_over_time"
+    t.float "market_change_over_time"
+    t.index ["company_id", "date"], name: "index_charts_on_company_id_and_date"
+    t.index ["company_id"], name: "index_charts_on_company_id"
+  end
 
   create_table "companies", force: :cascade do |t|
     t.string "symbol", null: false
@@ -115,6 +141,7 @@ ActiveRecord::Schema.define(version: 2019_01_05_033056) do
     t.index ["name"], name: "index_tags_on_name", unique: true
   end
 
+  add_foreign_key "charts", "companies"
   add_foreign_key "companies", "sectors"
   add_foreign_key "companies_tags", "companies"
   add_foreign_key "companies_tags", "tags"
