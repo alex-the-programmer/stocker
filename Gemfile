@@ -7,6 +7,7 @@ ruby '2.4.1'
 gem 'rails', '~> 5.2.2'
 # Use pg as the database for Active Record
 gem 'pg'
+gem 'activerecord-import'
 # Use Puma as the app server
 gem 'puma', '~> 3.11'
 # Use SCSS for stylesheets

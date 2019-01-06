@@ -1,14 +1,27 @@
 module ChartsLoader
-  class LoadCharts
+  class LoadChart
     include Sidekiq::Worker
 
-    def perform(company_id, day)
-      company = Company.find company_id
-      response = Faraday.get "https://api.iextrading.com/1.0/stock/#{company.symbol}/chart/date/#{day.strftime("%Y%m%d")}"
+    def perform(company_id)
+      company = Company.find(company_id)
+      response = Faraday.get "https://api.iextrading.com/1.0/stock/#{company.symbol}/chart/5y"
+      data = JSON.parse(response.body)
 
-      # todo this is per-minute data for the entire day
-      # it would make sence to aggregate it per hour and persist.
-      # then there would be a feature vector fo the entire 9 hours of market per day
+      charts = data.with_indifferent_access.map do |chart|
+        {
+            company_id: company_id,
+            date: chart[:date],
+            open: chart[:open],
+            high: chart[:high],
+            low: chart[:low],
+            close: chart[:close],
+            volume: chart[:volume],
+            vwap: chart[:volume]
+        }
+      end
+
+      status = Chart.import charts
+      raise "#{status.failed_instances.count} charts failed to insert" if charts.failed_instances.any?
     end
   end
 end
