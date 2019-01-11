@@ -34,6 +34,10 @@ module LearningDataPreparer
       else
         learning_record[:has_24_months_data] = false
       end
+
+      learning_record = learning_record.map do |key, value|
+        "feature_#{key}" => value
+      end
     end
 
     private
