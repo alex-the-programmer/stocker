@@ -2,6 +2,8 @@ module LearningDataPreparer
   class PrepareLearningRecord
     include Sidekiq::Worker
 
+    EXTRA_HIGH_PERCENT_CHANGE = 80
+
     def perform(company_id, date)
       company = Company.find(company_id)
 
@@ -51,9 +53,11 @@ module LearningDataPreparer
         {["feature_#{key}"] => value}
       end.to_h
 
-      learning_record[:feature_trend] = 'TBD'
-      learning_record[:feature_change_percent_bucket] = 'TBD'
-      learning_record[:feature_will_have_extra_high_positive_change_percent] = 'TBD'
+      next_day_chart = company.charts.find_by(date: find_next_market_date_for(date))
+      learning_record[:feature_trend] = next_day_chart.close - date_chart.close > 0 ? 'upward' : 'downward'
+      learning_record[:feature_change_percent_bucket] = bucket_one_decimal((next_day_chart.close - date_chart.close)/date_chart.close)
+      learning_record[:feature_will_have_extra_high_positive_close_close_change_percent] = (next_day_chart.close - date_chart.close)/date_chart.close > EXTRA_HIGH_PERCENT_CHANGE
+      learning_record[:feature_will_have_extra_high_positive_high_close_change_percent] = (next_day_chart.high - date_chart.close)/date_chart.close > EXTRA_HIGH_PERCENT_CHANGE
     end
 
     private
@@ -70,9 +74,9 @@ module LearningDataPreparer
       {
           has_trend: has_trend,
           trend: has_trend ? (date_to_chart.close - date_from_chart.open > 0 ? 'upward' : 'downward') : nil,
-          change_percent_bucket_open_close: has_trend ? bucket_one_decimal(date_to_chart.close - date_from_chart.open) : nil,
+          change_percent_bucket_open_close: has_trend ? bucket_one_decimal((date_to_chart.close - date_from_chart.open) / date_from_chart.open) : nil,
           has_high_low: has_high_low,
-          change_percent_bucket_high_low: has_high_low ? bucket_one_decimal(date_range_high - date_range_low): nil,
+          change_percent_bucket_high_low: has_high_low ? bucket_one_decimal((date_range_high - date_range_low)/date_range_low): nil,
           volume_bucket: "TBD todo",
           vwap_bucket: 'TBD todo',
           market_change_percent_bucket: 'TBD todo',
@@ -124,6 +128,18 @@ module LearningDataPreparer
       while(true) do
         return date - offset.days if Chart.any?(date: date - offset.days)
         offset += 1
+      end
+    end
+
+    def find_next_market_date_for(date)
+      while(true) do
+        if [0, 6].include?(date.wday)
+          date += 1.day
+          next
+        end
+
+        return date if Chart.any?(date: date)
+        date += 1.day
       end
     end
 
