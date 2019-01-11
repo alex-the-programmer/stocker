@@ -35,9 +35,25 @@ module LearningDataPreparer
         learning_record[:has_24_months_data] = false
       end
 
+      learning_record[:has_earnings_call_today] = 'TBD'
+      learning_record[:will_have_earnings_call_tomorrow] = 'TBD'
+      learning_record[:max_positive_open_close_change_percent_bucket_in_the_past_year] = 'TBD'
+      learning_record[:max_negative_open_close_change_percent_bucket_in_the_past_year] = 'TBD'
+      learning_record[:max_positive_high_low_change_percent_bucket_in_the_past_year] = 'TBD'
+      learning_record[:time_from_ipo]='TBD'
+      learning_record[:month_year] = 'TBD'
+      learning_record[:_week_month_year] = 'TBD'
+      learning_record[:has_extra_high_positive_close_open_change_percent_today] = 'tbd'
+      learning_record[:has_extra_high_negative_close_open_change_percent_today] = 'tbd'
+      learning_record[:has_extra_high_positive_high_low_change_percent_today] = 'tbd'
+
       learning_record = learning_record.map do |key, value|
-        "feature_#{key}" => value
-      end
+        {["feature_#{key}"] => value}
+      end.to_h
+
+      learning_record[:feature_trend] = 'TBD'
+      learning_record[:feature_change_percent_bucket] = 'TBD'
+      learning_record[:feature_will_have_extra_high_positive_change_percent] = 'TBD'
     end
 
     private
