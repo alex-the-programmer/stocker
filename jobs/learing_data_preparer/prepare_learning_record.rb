@@ -39,9 +39,9 @@ module LearningDataPreparer
 
       learning_record[:has_earnings_call_today] = 'TBD'
       learning_record[:will_have_earnings_call_tomorrow] = 'TBD'
-      learning_record[:max_positive_open_close_change_percent_bucket_in_the_past_year] = 'TBD'
-      learning_record[:max_negative_open_close_change_percent_bucket_in_the_past_year] = 'TBD'
-      learning_record[:max_positive_high_low_change_percent_bucket_in_the_past_year] = 'TBD'
+      learning_record[:max_positive_open_close_change_percent_bucket_in_the_past_year] = bucket_one_decimal(change_percent_in_range(date - 1.year, date, 'max((close - open) / open)', company))
+      learning_record[:min_negative_open_close_change_percent_bucket_in_the_past_year] = bucket_one_decimal(change_percent_in_range(date - 1.year, date, 'min((close - open) / open)', company))
+      learning_record[:max_positive_high_low_change_percent_bucket_in_the_past_year] = bucket_one_decimal(change_percent_in_range(date - 1.year, date, 'max((high - low) / low)', company))
       learning_record[:time_from_ipo]='TBD'
       learning_record[:month_year] = 'TBD'
       learning_record[:_week_month_year] = 'TBD'
@@ -54,10 +54,10 @@ module LearningDataPreparer
       end.to_h
 
       next_day_chart = company.charts.find_by(date: find_next_market_date_for(date))
-      learning_record[:feature_trend] = next_day_chart.close - date_chart.close > 0 ? 'upward' : 'downward'
-      learning_record[:feature_change_percent_bucket] = bucket_one_decimal((next_day_chart.close - date_chart.close)/date_chart.close)
-      learning_record[:feature_will_have_extra_high_positive_close_close_change_percent] = (next_day_chart.close - date_chart.close)/date_chart.close > EXTRA_HIGH_PERCENT_CHANGE
-      learning_record[:feature_will_have_extra_high_positive_high_close_change_percent] = (next_day_chart.high - date_chart.close)/date_chart.close > EXTRA_HIGH_PERCENT_CHANGE
+      learning_record[:label_trend] = next_day_chart.close - date_chart.close > 0 ? 'upward' : 'downward'
+      learning_record[:label_change_percent_bucket] = bucket_one_decimal((next_day_chart.close - date_chart.close)/date_chart.close)
+      learning_record[:label_will_have_extra_high_positive_close_close_change_percent] = (next_day_chart.close - date_chart.close)/date_chart.close > EXTRA_HIGH_PERCENT_CHANGE
+      learning_record[:label_will_have_extra_high_positive_high_close_change_percent] = (next_day_chart.high - date_chart.close)/date_chart.close > EXTRA_HIGH_PERCENT_CHANGE
     end
 
     private
@@ -161,6 +161,14 @@ module LearningDataPreparer
       end
 
       result
+    end
+
+    def change_percent_in_range(date_from, date_to, select, company)
+      company
+        .charts
+        .where('date BETWEEN ? AND ?', date_from, date_to)
+        .pluck(select)
+        .first
     end
   end
 end
