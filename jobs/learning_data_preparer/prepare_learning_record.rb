@@ -52,7 +52,7 @@ module LearningDataPreparer
       learning_record[:has_extra_high_positive_high_low_change_percent_today] = (date_chart.high - date_chart.low)/date_chart.low > EXTRA_HIGH_PERCENT_CHANGE if date_chart.high.present? && date_chart.low.present?
 
       learning_record = learning_record.map do |key, value|
-        {["feature_#{key}"] => value}
+        [["feature_#{key}"], value]
       end.to_h
 
       next_day_chart = company.charts.find_by(date: find_next_market_date_for(date))
@@ -136,13 +136,15 @@ module LearningDataPreparer
     end
 
     def find_next_market_date_for(date)
+      date+=1
+      raise 'This is the last date' if Chart.where('date >= ?', date).none?
       while(true) do
         if [0, 6].include?(date.wday)
           date += 1.day
           next
         end
 
-        return date if Chart.any?(date: date)
+        return date if Chart.where(date: date).any?
         date += 1.day
       end
     end
