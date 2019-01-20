@@ -5,17 +5,18 @@ module LearningDataPreparer
     EXTRA_HIGH_PERCENT_CHANGE = 80
 
     def perform(company_id, date)
+      date = date.to_date
       company = Company.find(company_id)
 
-      date_chart = company.charts.find_by(date)
-      earliest_date_available = Chart.minimum(:date)
+      date_chart = company.charts.find_by(date: date)
+      earliest_date_available = company.charts.minimum(:date)
       learning_record = {}
 
       learning_record[:price_bucket] = bucket_one_decimal(date_chart.close)
 
       # last 30 market days
       if date - 30.days >= earliest_date_available
-        learning_record.merge!(features_for_interval(last_30_marget_days(company_id, date), date_chart, 'day'))
+        learning_record.merge!(features_for_interval(last_30_marget_days(date, company_id), date_chart, 'day', company))
         learning_record[:has_30_market_days_data] = true
       else
         learning_record[:has_30_market_days_data] = false
@@ -23,7 +24,7 @@ module LearningDataPreparer
 
       # last 20 weeks
       if date - 20.weeks >= earliest_date_available
-        learning_record.merge!(features_for_interval(last_20_weeks(company_id, date), date_chart, 'week'))
+        learning_record.merge!(features_for_interval(last_20_weeks(date, company_id), date_chart, 'week', company))
         learning_record[:has_20_weeks_data] = true
       else
         learning_record[:has_20_weeks_data] = false
@@ -31,7 +32,7 @@ module LearningDataPreparer
 
       # last 24 months
       if date - 24.months >= earliest_date_available
-        learning_record.merge!(features_for_interval(last_24_months(company_id, date), date_chart, 'month'))
+        learning_record.merge!(features_for_interval(last_24_months(date, company_id), date_chart, 'month', company))
         learning_record[:has_24_months_data] = true
       else
         learning_record[:has_24_months_data] = false
@@ -47,7 +48,7 @@ module LearningDataPreparer
       learning_record[:week_month_year] = "#{date.day/4}_#{date.strftime("%m_%Y")}"
       learning_record[:has_extra_high_positive_close_open_change_percent_today] = (date_chart.close - date_chart.open)/date_chart.close > EXTRA_HIGH_PERCENT_CHANGE if date_chart.open.present?
       learning_record[:has_extra_high_negative_close_open_change_percent_today] = (date_chart.close - date_chart.open)/date_chart.close < (EXTRA_HIGH_PERCENT_CHANGE*-1) if date_chart.open.present?
-      learning_record[:has_extra_high_positive_high_low_change_percent_today] = (date_chart.high - date_chart.low)/date_chart.low > EXTRA_HIGH_PERCENT_CHANGE if date_chart.high.present? && date_chart.low.present?
+      learning_record[:has_extra_high_positive_high_low_change_percent_today] = (date_chart.high - date_chart.low)/date_chart.low > EXTRLdddA_HIGH_PERCENT_CHANGE if date_chart.high.present? && date_chart.low.present?
 
       learning_record = learning_record.map do |key, value|
         {["feature_#{key}"] => value}
@@ -90,12 +91,13 @@ module LearningDataPreparer
       Chart
         .where(company_id: date_from_chart.company_id)
         .where('date between ? and  ?', date_from_chart.date, date_to_chart.date)
-        .pluck('max(high, min(low)')
+        .pluck('max(high), min(low)')
+        .first
     end
 
     def last_30_marget_days(date, company_id)
       # rejecting weekends
-      days = (date - 6.weeks).reject{|day| [0, 6].include?(day.wday)}
+      days = (date - 8.weeks..date).reject{|day| [0, 6].include?(day.wday)}
       # rejecting holidays
       days_that_have_charts = days_that_have_charts(days, company_id)
       days_that_have_charts.take(30)
@@ -120,7 +122,7 @@ module LearningDataPreparer
     end
 
     def days_that_have_charts(days, company_id)
-      Chart.where(company_id: company_id, date: days).select(:date).order(:date).distinct
+      Chart.where(company_id: company_id, date: days).order(:date).pluck(:date)
     end
 
     def find_last_market_date_for(date)
@@ -150,9 +152,9 @@ module LearningDataPreparer
       end
     end
 
-    def features_for_interval(interval_days, date_chart, interval_label)
+    def features_for_interval(interval_days, date_chart, interval_label, company)
       result = {}
-      interval_days.each_with_index  do |date, day_number|
+      interval_days.reverse.each_with_index  do |date, day_number|
         from_day_chart = company.charts.find_by(date: date)
         change_features = change_features(from_day_chart, date_chart)
         change_features.each do |key, value|
