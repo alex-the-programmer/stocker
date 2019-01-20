@@ -44,10 +44,10 @@ module LearningDataPreparer
       learning_record[:max_positive_high_low_change_percent_bucket_in_the_past_year] = bucket_one_decimal(change_percent_in_range(date - 1.year, date, 'max((high - low) / low)', company))
       learning_record[:time_from_ipo]='TBD'
       learning_record[:month_year] = date.strftime("%m_%Y")
-      learning_record[:week_month_year] = "#{date.day /4}_#{date.strftime("%m_%Y")}"
-      learning_record[:has_extra_high_positive_close_open_change_percent_today] = 'tbd'
-      learning_record[:has_extra_high_negative_close_open_change_percent_today] = 'tbd'
-      learning_record[:has_extra_high_positive_high_low_change_percent_today] = 'tbd'
+      learning_record[:week_month_year] = "#{date.day/4}_#{date.strftime("%m_%Y")}"
+      learning_record[:has_extra_high_positive_close_open_change_percent_today] = (date_chart.close - date_chart.open)/date_chart.close > EXTRA_HIGH_PERCENT_CHANGE if date_chart.open.present?
+      learning_record[:has_extra_high_negative_close_open_change_percent_today] = (date_chart.close - date_chart.open)/date_chart.close < (EXTRA_HIGH_PERCENT_CHANGE*-1) if date_chart.open.present?
+      learning_record[:has_extra_high_positive_high_low_change_percent_today] = (date_chart.high - date_chart.low)/date_chart.low > EXTRA_HIGH_PERCENT_CHANGE if date_chart.high.present? && date_chart.low.present?
 
       learning_record = learning_record.map do |key, value|
         {["feature_#{key}"] => value}
@@ -55,7 +55,7 @@ module LearningDataPreparer
 
       next_day_chart = company.charts.find_by(date: find_next_market_date_for(date))
       learning_record[:label_trend] = next_day_chart.close - date_chart.close > 0 ? 'upward' : 'downward'
-      learning_record[:label_change_percent_bucket] = bucket_one_decimal((next_day_chart.close - date_chart.close) / date_chart.close)
+      learning_record[:label_change_percent_bucket] = bucket_one_decimal((next_day_chart.close - date_chart.close)/date_chart.close)
       learning_record[:label_will_have_extra_high_positive_close_close_change_percent] = (next_day_chart.close - date_chart.close)/date_chart.close > EXTRA_HIGH_PERCENT_CHANGE
       learning_record[:label_will_have_extra_high_positive_high_close_change_percent] = (next_day_chart.high - date_chart.close)/date_chart.close > EXTRA_HIGH_PERCENT_CHANGE
     end
