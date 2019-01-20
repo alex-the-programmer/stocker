@@ -32,6 +32,7 @@ module LearningDataPreparer
 
       # last 24 months
       if date - 24.months >= earliest_date_available
+        #todo not debugged
         learning_record.merge!(features_for_interval(last_24_months(date, company_id), date_chart, 'month', company))
         learning_record[:has_24_months_data] = true
       else
@@ -48,7 +49,7 @@ module LearningDataPreparer
       learning_record[:week_month_year] = "#{date.day/4}_#{date.strftime("%m_%Y")}"
       learning_record[:has_extra_high_positive_close_open_change_percent_today] = (date_chart.close - date_chart.open)/date_chart.close > EXTRA_HIGH_PERCENT_CHANGE if date_chart.open.present?
       learning_record[:has_extra_high_negative_close_open_change_percent_today] = (date_chart.close - date_chart.open)/date_chart.close < (EXTRA_HIGH_PERCENT_CHANGE*-1) if date_chart.open.present?
-      learning_record[:has_extra_high_positive_high_low_change_percent_today] = (date_chart.high - date_chart.low)/date_chart.low > EXTRLdddA_HIGH_PERCENT_CHANGE if date_chart.high.present? && date_chart.low.present?
+      learning_record[:has_extra_high_positive_high_low_change_percent_today] = (date_chart.high - date_chart.low)/date_chart.low > EXTRA_HIGH_PERCENT_CHANGE if date_chart.high.present? && date_chart.low.present?
 
       learning_record = learning_record.map do |key, value|
         {["feature_#{key}"] => value}
@@ -126,6 +127,7 @@ module LearningDataPreparer
     end
 
     def find_last_market_date_for(date)
+      # todo not debugged
       offset = 1
       while(true) do
         return date - offset.days if Chart.any?(date: date - offset.days)
