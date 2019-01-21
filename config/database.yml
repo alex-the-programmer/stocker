@@ -15,7 +15,7 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: stocker_development
+  database: stocker_test
 
 production:
   <<: *default
