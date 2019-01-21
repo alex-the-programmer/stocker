@@ -1,0 +1,3 @@
+describe LearningDataPreparer::PrepareLearningRecord do
+
+end
