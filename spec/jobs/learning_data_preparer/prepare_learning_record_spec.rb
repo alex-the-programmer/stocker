@@ -57,7 +57,34 @@ describe LearningDataPreparer::PrepareLearningRecord do
   end
 
   describe '#find_last_market_date_for' do
+    describe 'when the last day is a week day' do
+      describe 'when there are charts for that day' do
+        it 'returns that day' do
+        last_day_chart =create(:chart, company: chart.company, date: chart.date - 1.day)
+          expect(subject.send(:find_last_market_date_for, chart.date)).to eq last_day_chart.date
+        end
+      end
+      describe 'when there is no charts for that day' do
+        describe 'when there are earlier days' do
+          it 'returns that day' do
+          last_day_chart=create(:chart, company: chart.company, date: chart.date - 2.day)
+            expect(subject.send(:find_last_market_date_for, chart.date)).to eq last_day_chart.date
+          end
+        end
 
+        describe 'when there is no earlier days for that symbol' do
+          # TODO think what should be happening here
+        end
+      end
+    end
+
+    describe 'when the last day is a weekend' do
+      it'returns the last friday' do
+        friday_chart = create(:chart, company: chart.company, date: '01/11/2019')
+        monday_chart = create(:chart, company: chart.company, date: '01/14/2019')
+        expect(subject.send(:find_last_market_date_for, monday_chart.date)).to eq friday_chart.date
+      end
+    end
   end
 
   describe '#find_next_market_date_for' do

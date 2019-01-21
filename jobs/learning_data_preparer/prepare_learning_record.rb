@@ -129,7 +129,7 @@ module LearningDataPreparer
     def find_last_market_date_for(date)
       offset = 1
       while(true) do
-        return date - offset.days if Chart.any?(date: date - offset.days)
+        return date - offset.days if Chart.where(date: date - offset.days).any?
         offset += 1
       end
     end
