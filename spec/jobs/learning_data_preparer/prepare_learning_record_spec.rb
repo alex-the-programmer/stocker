@@ -1,6 +1,6 @@
 require './spec/rails_helper'
 describe LearningDataPreparer::PrepareLearningRecord do
-  before do
+  before(:each) do
     Chart.destroy_all
     Company.destroy_all
   end
@@ -23,13 +23,15 @@ describe LearningDataPreparer::PrepareLearningRecord do
     end
     describe 'when the date is more than 1 day' do
       before do
+        c2 =create(:company, symbol: :foo)
+        create(:chart, company: c2, low: -100)
         @min_chart
         20.times do |i|
-          @min_chart = create!(:chart, comppany: chart.company, date: chart.date - i.days)
+          @min_chart = create(:chart, company: chart.company, date: chart.date - i.days)
         end
 
-        Chart.skip(5).take(1).update(high: 20)
-        Chart.skip(8).take(1).update(low: -20)
+        Chart.offset(5).limit(1).update_all(high: 20)
+        Chart.offset(8).limit(1).update_all(low: -20)
       end
 
       it 'returns values from the range' do
