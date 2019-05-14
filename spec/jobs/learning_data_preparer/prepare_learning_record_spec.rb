@@ -91,7 +91,15 @@ describe LearningDataPreparer::PrepareLearningRecord do
 
   describe '#last_24_months' do
     it 'returns last 24 dates that are a month apart from one anotehr and where holidays are replaced with last market days' do
+      (chart.date - 25.months..chart.date).each do |date|
+        create(:chart, company: chart.company, date: date) unless [0, 6].include?(date.wday)
+      end
 
+      range = subject.send(:last_24_months, chart.date, chart.company.id)
+      expect(range.count).to eq 24
+      range.each do |d|
+        expect([0, 6].include?(d.wday)).to be_falsey
+      end
     end
     describe 'when there is not enough dates' do
       # TBD
