@@ -43,7 +43,7 @@ describe LearningDataPreparer::PrepareLearningRecord do
   describe '#last_30_marget_days' do
     it 'returns last 30 days including the given one that have charts' do
       (chart.date - 2.months..chart.date).each do |date|
-        create(:chart, company: chart.company, date: date)
+        create(:chart, company: chart.company, date: date) unless [0, 6].include?(date.wday)
       end
 
       range = subject.send(:last_30_market_days, chart.date, chart.company.id)
@@ -58,9 +58,32 @@ describe LearningDataPreparer::PrepareLearningRecord do
   end
 
   describe '#last_20_weeks' do
-    it 'returns last 20 dates that are a week apart from one another and where holidays are replaced with last market days' do
-
+    before do
+      (chart.date - 6.months..chart.date).each do |date|
+        create(:chart, company: chart.company, date: date) unless [0, 6].include?(date.wday)
+      end
     end
+
+    context 'when the given day is during the week' do
+      it 'returns last 20 dates that are a week apart from one another and where holidays are replaced with last market days' do
+        range = subject.send(:last_20_weeks, chart.date, chart.company.id)
+        expect(range.count).to eq 20
+        range.each do |d|
+          expect([0, 6].include?(d.wday)).to be_falsey
+        end
+      end
+    end
+
+    context 'when the gieven day is a weekend' do
+      it 'returns 20 Fridays' do
+        range = subject.send(:last_20_weeks, chart.date - 2.days, chart.company.id)
+        expect(range.count).to eq 20
+        range.each do |d|
+          expect(d.wday).to eq 5
+        end
+      end
+    end
+
     describe 'when there is not enough dates' do
       # TBD
     end
