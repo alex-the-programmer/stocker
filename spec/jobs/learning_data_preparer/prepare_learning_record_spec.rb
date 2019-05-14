@@ -108,7 +108,13 @@ describe LearningDataPreparer::PrepareLearningRecord do
 
   describe '#days_that_have_charts' do
     it 'returns only days that have charts for them' do
+      days = Date.today - 10.days .. Date.today
+      create(:chart, company: chart.company, date: days.last)
+      create(:chart, company: chart.company, date: days.first)
 
+      days_with_charts = subject.send(:days_that_have_charts, days, chart.company.id)
+      expect(days_with_charts.count).to eq 2
+      expect(days_with_charts).to eq [days.first, days.last]
     end
   end
 
