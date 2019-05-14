@@ -97,8 +97,8 @@ describe LearningDataPreparer::PrepareLearningRecord do
 
     describe 'when the last day is a weekend' do
       it'returns the last friday' do
-        friday_chart = create(:chart, company: chart.company, date: '01/11/2019')
-        monday_chart = create(:chart, company: chart.company, date: '01/14/2019')
+        friday_chart = create(:chart, company: chart.company, date: '2019-01-11')
+        monday_chart = create(:chart, company: chart.company, date: '2019-01-14')
         expect(subject.send(:find_last_market_date_for, monday_chart.date)).to eq friday_chart.date
       end
     end

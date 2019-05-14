@@ -17,6 +17,14 @@
             "type": "Ruby",
             "request": "launch",
             "program": "${workspaceRoot}/bin/sidekiq",
+        },{
+            "name": "Rails Console",
+            "type": "Ruby",
+            "request": "launch",
+            "program": "${workspaceRoot}/bin/rails",
+            "args": [
+                "console"
+            ]
         }
     ]
 }

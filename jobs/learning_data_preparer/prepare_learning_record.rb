@@ -16,7 +16,7 @@ module LearningDataPreparer
 
       # last 30 market days
       if date - 30.days >= earliest_date_available
-        learning_record.merge!(features_for_interval(last_30_marget_days(date, company_id), date_chart, 'day', company))
+        learning_record.merge!(features_for_interval(last_30_market_days(date, company_id), date_chart, 'day', company))
         learning_record[:has_30_market_days_data] = true
       else
         learning_record[:has_30_market_days_data] = false
@@ -96,7 +96,7 @@ module LearningDataPreparer
         .first
     end
 
-    def last_30_marget_days(date, company_id)
+    def last_30_market_days(date, company_id) 
       # rejecting weekends
       days = (date - 8.weeks..date).reject{|day| [0, 6].include?(day.wday)}
       # rejecting holidays
